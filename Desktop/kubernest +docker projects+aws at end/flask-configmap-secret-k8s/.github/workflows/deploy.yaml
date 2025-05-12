@@ -1,0 +1,38 @@
+name: CI/CD Pipeline
+
+on:
+  
+  push:
+    
+    branches:
+      
+      - main
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      with:
+        username: ${{ secrets.Docker_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: docker/Dockerfile
+        push: true
+        tags: ${{ secrets/DOCKER_USERNAME }}/flask-configmap-secret-k8s:latest
+    - name: Set up Kubeconfig
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 > ~/.kube/config
+
+    - name: Deploy to Kubernets
+      run: |
+        kubectl apply -f k8s/
