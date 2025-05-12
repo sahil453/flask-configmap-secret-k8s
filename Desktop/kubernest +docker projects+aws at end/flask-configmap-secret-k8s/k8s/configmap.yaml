@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flask-config
+  namespace: flask-namespace
+data:
+  APP_NAME: "My ConfigMap App"
